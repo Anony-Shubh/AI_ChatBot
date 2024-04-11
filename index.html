@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelli Converse Live</title>
+</head>
+<body>
+<style>
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('travel-background.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+#chat-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+#chat-history {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background: rgba(250, 250, 250, 0.8);
+}
+
+.user-message {
+    background-color: #0035f3; /* Lively Coral */
+    color: white;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 15px;
+    max-width: 75%;
+    align-self: flex-end;
+}
+
+.bot-message {
+    background-color: #209e5d; /* Calm Mint */
+    color: white;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 15px;
+    max-width: 75%;
+    align-self: flex-start;
+}
+
+form {
+    display: flex;
+    gap: 10px;
+}
+
+input, button {
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+input {
+    flex-grow: 1;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: #007BFF;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#loader {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+</style>
+<div id="chat-container">
+    <h1>Intelli Converse Live</h1>
+    <div id="chat-history"></div>
+    <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button type="submit">Send</button>
+    </form>
+</div>
+
+<div id="loader">
+    <img src="loader.gif" alt="Loading...">
+</div>
+
+<script>
+  const chatHistory = document.getElementById('chat-history');
+  const userInput = document.getElementById('user-input');
+  const form = document.getElementById('chat-form');
+
+  async function sendMessage() {
+    const userMessage = userInput.value;
+    userInput.value = ''; // Clear input field
+    displayMessage(userMessage, 'user');
+
+    try {
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userInput: userMessage }),
+      });
+
+      const data = await response.json();
+      displayMessage(data.response, 'bot');
+    } catch (error) {
+      console.error('Error:', error);
+      displayMessage('Sorry, something went wrong.', 'bot');
+    }
+  }
+
+  function displayMessage(message, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+    messageDiv.innerHTML = message;
+    chatHistory.appendChild(messageDiv);
+
+    // Scroll to the bottom of the chat history
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent form submission
+    sendMessage();
+  });
+</script>
+
+</body>
+</html>
